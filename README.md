@@ -24,8 +24,9 @@ Here is an example of the model usage with Sequelize and TypeScript:
 #### Container Parameters
 
 Pull the image
+
 ```shell
-docker pull yujuism/jsonrpc-dblink:latest
+docker pull potatodeveloper/jsonrpc-dblink:latest
 ```
 
 Run the container
@@ -44,7 +45,7 @@ docker run \
   -e DB_MODULE=[database_package_module] \
   -p [external_port]:3000 \
   -d \
-  yujuism/jsonrpc-dblink:latest
+  potatodeveloper/jsonrpc-dblink:latest
 ```
 
 Docker compose example
@@ -58,7 +59,7 @@ services:
     restart: always
     ports:
       - ${RD_PORT}:6379
-    command: redis-server --save 20 1 --loglevel warning --requirepass ${RD_PASSWORD}
+    command: redis-server --save 20 1 --loglevel warning --requirepass example_password
     volumes:
       - ./cache:/data
     networks:
@@ -69,9 +70,9 @@ services:
     image: postgres:14.5-alpine
     restart: always
     environment:
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=example_password
+      - POSTGRES_DB=jsonrpc
     ports:
       - ${POSTGRES_PORT}:5432
     volumes:
@@ -81,21 +82,25 @@ services:
 
   dblink:
     container_name: dblink
-    image: yujuism/jsonrpc-dblink:latest
+    image: potatodeveloper/jsonrpc-dblink:latest
     ports:
-      - '3002:3000'
+      - '3001:3000'
     environment:
-      - DB_USER=${DB_USER}
-      - DB_PASSWORD=${DB_PASSWORD}
-      - DB_NAME=${DB_NAME}
-      - DB_HOST=${DB_HOST}
-      - DB_PORT=${DB_PORT}
-      - API_KEY=${API_KEY}
-      - REDIS_STORE=${REDIS_STORE}
-      - REDIS_PORT=${REDIS_PORT}
-      - REDIS_PASSWORD=${REDIS_PASSWORD}
-      - DB_MODULE=${DB_MODULE}
-      - DB_EXTENSIONS=${DB_EXTENSIONS}
+      - DB_USER=postgres
+      - DB_PASSWORD=example_password
+      - DB_NAME=jsonrpc
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - API_KEY=example_key
+      - REDIS_STORE=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=example_password
+      - DB_MODULE=model-example-dblink
+      - DB_EXTENSIONS=uuid-ossp
+      - GIT_HOST=${GIT_HOST}
+      - GIT_PORT=${GIT_PORT}
+      - SSH_PUBLIC=${SSH_PUBLIC}
+      - SSH_PRIVATE=${SSH_PRIVATE}
     depends_on:
       - redis
       - postgres
@@ -122,6 +127,10 @@ networks:
 - `DB_HOST` - Database host
 - `DB_PORT` - Database port
 - `DB_MODULE` - Database node package module
+- `GIT_HOST` - Git URL for package from repository
+- `GIT_PORT` - Git port (other than default port 22)
+- `SSH_PUBLIC` - SSH base64 encrypted id_rsa.pub or id_ed25529.pub for private repository
+- `SSH_PRIVATE` SSH base64 encrypted id_rsa or id_ed25529 for private repository
 - `DB_EXTENSIONS` - Database extension (e.g. : uuid-ossp,other-ext,another-ext)
 - `COMMAND_HANDLER` - enable/disable command handler ,default:true)
 - `QUERY_HANDLER` - enable/disable query handler ,default:true)
@@ -170,6 +179,45 @@ Below is the list of methods that can be utilized. For further details on how to
 {
   "Op.in": [1, 2, 3, 4]
 }
+```
+
+### URL
+
+```
+http://localhost:3001/rpc
+```
+
+### METHOD
+
+```
+// method post only
+POST
+```
+
+### Headers
+
+```
+master-api-key=example_key
+```
+
+#### example curl command
+
+```
+curl --location 'http://localhost:3001/rpc' \
+--header 'master-api-key: example_key' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+  "jsonrpc": "2.0",
+  "method": "command.create",
+  "id": "Employee",
+  "params": {
+    "data": {
+      "name": "Alice",
+      "email": "alice@example.com",
+      "code": "EMP001"
+    }
+  }
+}'
 ```
 
 #### Commands
@@ -302,6 +350,38 @@ Below is the list of methods that can be utilized. For further details on how to
 - `query.findAll`
 - `query.findAndCountAll`
 
+#### example curl query
+
+```
+curl --location 'http://localhost:3001/rpc' \
+--header 'master-api-key: example_key' \
+--header 'Content-Type: application/json' \
+--data '{
+  "jsonrpc": "2.0",
+  "method": "query.findAll",
+  "id": "Employee",
+  "params": {
+    "attributes": ["code", "name", "email"],
+    "include": [
+      {
+        "model": "Task",
+        "attributes": ["name"],
+        "include": [
+          {
+            "model": "Project",
+            "attributes": ["name"]
+          }
+        ]
+      },
+      {
+        "model": "Department",
+        "attributes": ["name"]
+      }
+    ]
+  }
+}'
+```
+
 #### `Request`
 
 ```json
@@ -397,13 +477,13 @@ Below is the list of methods that can be utilized. For further details on how to
 
 ## Find Us
 
-- [GitHub](https://github.com/yujuism/jsonrpc-dblink)
+- [GitHub](https://github.com/potatodeveloperonline/jsonrpc-dblink)
 
 ## Authors
 
-- **yujuism** - _Initial work_ - [yujuism](https://github.com/yujuism)
+- **yujuism** - _Initial work_ - [yujuism](https://github.com/potatodeveloperonline/jsonrpc-dblink)
 
-See also the list of [contributors](https://github.com/yujuism/jsonrpc-dblink/contributors) who
+See also the list of [contributors](https://github.com/potatodeveloperonline/jsonrpc-dblink) who
 participated in this project.
 
 ## License

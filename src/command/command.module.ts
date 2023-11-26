@@ -2,7 +2,7 @@ import {Module} from '@nestjs/common';
 import {CommandService} from './command.service';
 import {CommandHandler} from './command.handler';
 import {ConfigModule} from '@nestjs/config';
-import {JsonRpcModule} from 'asc-rpc';
+import {JsonRpcModule} from 'nestjs-jrpc';
 import {ElasticSearchModule} from 'src/elasticsearch/elasticsearch.module';
 
 @Module({

@@ -1,4 +1,4 @@
-import {JSON_RPC_ERROR_CODES, RpcException} from 'asc-rpc';
+import {JSON_RPC_ERROR_CODES, RpcException} from 'nestjs-jrpc';
 import {Inject, Injectable} from '@nestjs/common';
 import {Sequelize} from 'sequelize-typescript';
 import {replaceModels} from '../utility/globals/models';

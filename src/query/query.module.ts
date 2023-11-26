@@ -2,7 +2,7 @@ import {Module} from '@nestjs/common';
 import {QueryService} from './query.service';
 import {QueryHandler} from './query.handler';
 import {ConfigModule} from '@nestjs/config';
-import {JsonRpcModule} from 'asc-rpc';
+import {JsonRpcModule} from 'nestjs-jrpc';
 
 @Module({
   imports: [

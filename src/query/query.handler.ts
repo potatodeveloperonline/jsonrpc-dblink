@@ -1,5 +1,5 @@
 import {QueryService} from './query.service';
-import {RpcId, RpcPayload, RpcMethodHandler, RpcHandler} from 'asc-rpc';
+import {RpcId, RpcPayload, RpcMethodHandler, RpcHandler} from 'nestjs-jrpc';
 
 require('dotenv').config('../.env');
 @RpcHandler({
